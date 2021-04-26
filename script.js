@@ -1,6 +1,7 @@
 $(document).ready(function () {
     var $messages = $('.messages-content'),
-        i = 0;
+        i = 0,
+        msgId = 0;
 
     //Array to hold the responses
     let responses = [
@@ -21,37 +22,24 @@ $(document).ready(function () {
         });
     }
 
-    // function setDate() {
-    //     d = new Date();
-    //     var m = d.toLocaleTimeString('en-GB', { hour12: true, hour: "numeric", 
-    //     minute: "numeric"});
-    //         $('<div class="timestamp">' + m + '</div>').appendTo($('.message:last'));
-    // }
-
-    let msgId = 0;
-
-
     // Inserts message
     function insertMessage() {
-        if (msgId === 7) {
-            return;
-        }
-        if (msgId != 4) {
+        if (msgId === 7) return;
+        if (msgId !== 2 || msgId !== 3) clickedCandidate();
+        if (msgId === 2 || msgId === 3) {
             msg = $('.message-input').val();
+            let text = msg.charAt(0).toUpperCase() + msg.slice(1).toLowerCase();
             if ($.trim(msg) == '') {
                 return false;
             }
-            $('<div class="message message-personal">' + msg + '</div>').appendTo($('.mCSB_container')).addClass('new');
-            responses[msgId].push(msg);
-            console.log(responses);
-
-            msgId++;
-
-           
+            $('<div class="message message-personal">' + text + '</div>').appendTo($('.mCSB_container')).addClass('new');
+            if(msgId === 2) responses[msgId].push(text);
+            if (msgId === 3) responses[msgId].push(text);
+            console.log(responses)
             $('.message-input').val(null);
-        } else {
-            clickedCandidate();
+            text = "";
         }
+        msgId++;
 
         updateScrollbar();
         setTimeout(function () {
@@ -59,13 +47,13 @@ $(document).ready(function () {
         }, 1000 + (Math.random() * 20) * 100);
     }
 
-    // Inserts message when candidate is clicked on
+    // Inserts message when choice is clicked
     function insertChoiceMade(choice) {
         if (choice == '') {
             return false;
         }
         $('<div class="message message-personal">' + choice + '</div>').appendTo($('.mCSB_container')).addClass('new');
-        // setDate();
+       
         $('.message-input').val(null);
         updateScrollbar();
         setTimeout(function () {
@@ -73,28 +61,75 @@ $(document).ready(function () {
         }, 1000 + (Math.random() * 20) * 100);
     }
 
+    // Inserts choice selected
     $('.message-submit').click(function () {
-        insertMessage();
+        if(msgId === 2 || msgId === 3 ) insertMessage(); 
     });
 
+    // Inserts typed text
     $(window).on('keydown', function (e) {
-        if (e.which == 13) {
-            insertMessage();
-            return false;
+        if (msgId === 2 || msgId === 3) {
+            if (e.which == 13) {
+                insertMessage();
+                return false;
+            }
+        } else {
+            e.preventDefault();
         }
     });
 
-    let candidatesDiv = `
-    <div class="candidates">
+    // Questions with multiple choices
+    let questionOneOptions = `
+    <div class="options question_0_options">
         <ul>
-            <li class="candidate" data-value="Raila Odinga">Raila Odinga</li>
-            <li class="candidate" data-value="William Ruto">William Ruto</li>
-            <li class="candidate" data-value="Fred Matiangi">Fred Matiangi</li>
+            <li class="option" data-value="Yes">Yes</li>
         </ul>
         <ul>
-            <li class="candidate" data-value="Musalia Mudavadi">Musalia Mudavadi</li>
-            <li class="candidate" data-value="Kalonzo Musyoka">Kalonzo Musyoka</li>
-            <li class="candidate" data-value="Others">Others</li>
+            <li class="option" data-value="No">No</li>
+        </ul>
+    </div>`;
+
+    let questionTwoOptions = `
+    <div class="options question_1_options">
+        <ul>
+            <li class="option" data-value="Male">Male</li>
+        </ul>
+        <ul>
+            <li class="option" data-value="Female">Female</li>
+        </ul>
+    </div>`;
+
+    let candidatesDiv = `
+    <div class="candidates question_4_options">
+        <ul>
+            <li class="option" data-value="Raila Odinga">Raila Odinga</li>
+            <li class="option" data-value="William Ruto">William Ruto</li>
+            <li class="option" data-value="Fred Matiangi">Fred Matiangi</li>
+        </ul>
+        <ul>
+            <li class="option" data-value="Musalia Mudavadi">Musalia Mudavadi</li>
+            <li class="option" data-value="Kalonzo Musyoka">Kalonzo Musyoka</li>
+            <li class="option" data-value="Others">Others</li>
+        </ul>
+    </div>`;
+
+    let questionSixOptions = `
+    <div class="options question_5_options">
+        <ul>
+            <li class="option" data-value="For">For</li>
+        </ul>
+        <ul>
+            <li class="option" data-value="Against">Against</li>
+        </ul>
+    </div>`;
+
+    let questionSevenOptions = `
+    <div class="options question_6_options">
+        <ul>
+            <li class="option" data-value="Yes">Yes</li>
+        </ul>
+        <ul>
+            <li class="option" data-value="No">No</li>
         </ul>
     </div>`;
 
@@ -102,33 +137,38 @@ $(document).ready(function () {
     let choice = '';
 
     function clickedCandidate() {
-        let candidates = document.querySelectorAll('.candidate');
-        let candidatesContainer = document.querySelector('.candidates');
-        // console.log(candidates);
+        // console.log(msgId)
 
-        candidates.forEach((candidate, i) => {
+        if (msgId === 2 || msgId === 3) return;
+        if (msgId !== 2 || msgId !== 3) {
+            let questionOptions = document.querySelector(`.question_${msgId}_options`);
+            let options = questionOptions.querySelectorAll('.option');
+            
 
-            candidate.addEventListener('click', () => {
-                choice = candidates[i].getAttribute("data-value");
-                insertChoiceMade(choice);
-                candidatesContainer.style.display = 'none';
-                // return choice;
-                responses[4].push(choice);
-                msgId++;
-                console.log(responses);
+            options.forEach((option, i) => {
+                option.addEventListener('click', () => {
+                    choice = options[i].getAttribute("data-value");
+                    insertChoiceMade(choice);
+                    questionOptions.style.display = 'none';
+                    // return choice;
+                    responses[msgId].push(choice);
+                    console.log(responses)
+                    choice = '';
+                    msgId++;
+                });
             });
-        });
+        }
     }
 
 
     var Fake = [
         {
             question: 'Are you a youth? (Below 35yrs)',
-            options: 'Yes | No',
+            options: questionOneOptions,
         },
         {
             question: 'What is your gender?',
-            options: ''
+            options: questionTwoOptions
         },
         {
             question: 'Which country are you from?',
@@ -144,15 +184,16 @@ $(document).ready(function () {
         },
         {
             question: 'If a referendum on the constitutional changes proposed in the BBI was held today, would you vote for or against the changes?',
-            options: 'For | Against'
+            options: questionSixOptions
         },
         {
             question: 'Do you support 1 man, 1 vote, 1 shilling policy?',
-            options: 'Yes | No'
+            options: questionSevenOptions
         }
     ];
 
 
+    // Loads next question
     function fakeMessage() {
         if ($('.message-input').val() != '') {
             return false;
@@ -163,18 +204,13 @@ $(document).ready(function () {
         setTimeout(function () {
             $('.message.loading').remove();
             if (i === 7) {
-                $('<div class="message new"><figure class="avatar"><img src="https://cdn.diversityavatars.com/assets/images/avatars-gallery/placeholder.png" /></figure>' + 'Thank you for your answers. Have a lovely day.' + '</div>').appendTo($('.mCSB_container')).addClass('new');
-                // $('.message-box');
+                $('<div class="message new"><figure class="avatar"><img src="https://cdn.diversityavatars.com/assets/images/avatars-gallery/placeholder.png" /></figure>' + 'Thank you for completing the survey.' + '</div>').appendTo($('.mCSB_container')).addClass('new');
                 updateScrollbar();
                 document.querySelector('.message-box').style.display = 'none';
                 return;
-            }
-            if (i === 4) {
-                $('<div class="message new"><figure class="avatar"><img src="https://cdn.diversityavatars.com/assets/images/avatars-gallery/placeholder.png" /></figure>' + Fake[i].question + '<br>' + Fake[i].options + '</div>').appendTo($('.mCSB_container')).addClass('new');
-                clickedCandidate();
-                updateScrollbar();
             } else {
                 $('<div class="message new"><figure class="avatar"><img src="https://cdn.diversityavatars.com/assets/images/avatars-gallery/placeholder.png" /></figure>' + Fake[i].question + '<br>' + Fake[i].options + '</div>').appendTo($('.mCSB_container')).addClass('new');
+                clickedCandidate();
             }
             updateScrollbar();
             i++;
