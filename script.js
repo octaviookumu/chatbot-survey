@@ -1,50 +1,56 @@
 $(document).ready(function () {
-    var $messages = $('.messages-content'),
-        i = 0,
-        msgId = 0;
+    var $messages = $('.messages-content');
+    
+    let i = 0;
+    let msgId = 0;
 
     //Array to hold the responses
     let responses = [
-        [], [], [], [], [], [], []
+        [], [], [], [], [], [], [], []
     ];
 
     let question_options = [
-    {
-        question: "Are You A Youth? (Below 35 Years)",
-        question_number: 1,
-        options: ["Yes", "No"],
-    },
-    {
-        question: "What is your gender?",
-        question_number: 2,
-        options: ["Male", "Female"],
-    },
-    {
-        question: "Which county are you from?",
-        question_number: 3,
-        options: "",
-    },
-    {
-        question: "Which candidate would you want to vie?",
-        question_number: 4,
-        options: "",
-    },
-    {
-        question: "If elections were held today, which candidate would you want to vie?",
-        question_number: 5,
-        options: ["Raila Odinga", "William Ruto", "Fred Matiangi", "Musalia Mudavadi", "Kalonzo Musyoka", "Others"]
-    },
-    {
-        question: "If a referendum on the constitutional changes proposed in the BBI was held today, would you vote for or against the changes?",
-        question_number: 6,
-        options: ["For", "Against"]
-    },
-    {
-        question: "Do you support one man, one vote, one shilling policy?",
-        question_number: 7,
-        options: ["Yes", "No"]
-    }
-];
+        {
+            question: "Are You A Youth? (Below 35 Years)",
+            question_number: 1,
+            options: ["Yes", "No"],
+        },
+        {
+            question: "What is your gender?",
+            question_number: 2,
+            options: ["Male", "Female"],
+        },
+        {
+            question: "Which county are you from?",
+            question_number: 3,
+            options: "",
+        },
+        {
+            question: "Which candidate would you want to vie?",
+            question_number: 4,
+            options: "",
+        },
+        {
+            question: "If elections were held today, which candidate would you want to vie?",
+            question_number: 5,
+            options: ["Raila Odinga", "William Ruto", "Fred Matiangi", "Musalia Mudavadi", "Kalonzo Musyoka", "Others"]
+        },
+        {
+            question: "If a referendum on the constitutional changes proposed in the BBI was held today, would you vote for or against the changes?",
+            question_number: 6,
+            options: ["For", "Against"]
+        },
+        {
+            question: "Do you support one man, one vote, one shilling policy?",
+            question_number: 7,
+            options: ["Yes", "No"]
+        },
+        {
+            question: "Enter email to receive your results.",
+            question_number: 8,
+            options: ""
+        }
+    ];
 
     $(window).load(function () {
         $messages.mCustomScrollbar();
@@ -62,22 +68,31 @@ $(document).ready(function () {
 
     // Inserts message
     function insertMessage() {
-        if (msgId === 7) return;
-        if (msgId !== 3) clickedCandidate();
-        if (msgId === 3) {
+        if (msgId === 8) return;
+        if (msgId !== 3 || msgId !== 7) clickedChoice();
+        if (msgId === 3 || msgId === 7) {
             msg = $('.message-input').val();
             let text = msg.charAt(0).toUpperCase() + msg.slice(1).toLowerCase();
             if ($.trim(msg) == '') {
                 return false;
             }
-            $('<div class="message message-personal">' + text + '</div>').appendTo($('.mCSB_container')).addClass('new');
-            if (msgId === 3) responses[msgId].push(text);
+            if (msgId === 3) {
+                $('<div class="message message-personal">' + text + '</div>').appendTo($('.mCSB_container')).addClass('new');
+                responses[msgId].push(text);
+                console.log(responses)
+            }
+            if (msgId === 7) {
+                document.querySelector(`.question_${msgId}_options`).style.display = 'none';
+                $('<div class="message message-personal">' + msg + '</div>').appendTo($('.mCSB_container')).addClass('new');
+                responses[msgId].push(msg);
+                console.log(responses)
+            }
             sendAdSurveyResponse(msgId + 1, text);
             sendBannerEngagementEvent(`question_${msgId + 1}_input_entered`);
             $('.message-input').val(null);
             text = "";
+            msgId++;
         }
-        msgId++;
 
         updateScrollbar();
         setTimeout(function () {
@@ -91,7 +106,6 @@ $(document).ready(function () {
             return false;
         }
         $('<div class="message message-personal">' + choice + '</div>').appendTo($('.mCSB_container')).addClass('new');
-
         $('.message-input').val(null);
         updateScrollbar();
         setTimeout(function () {
@@ -101,12 +115,12 @@ $(document).ready(function () {
 
     // Inserts choice selected
     $('.message-submit').click(function () {
-        if (msgId === 3) insertMessage();
+        if (msgId === 3 || msgId === 7) insertMessage();
     });
 
     // Inserts typed text
     $(window).on('keydown', function (e) {
-        if (msgId === 3) {
+        if (msgId === 3 || msgId === 7) {
             if (e.which == 13) {
                 insertMessage();
                 return false;
@@ -227,38 +241,66 @@ $(document).ready(function () {
         </ul>
     </div>`;
 
+    let questionEightOptions = `
+    <div class="options question_7_options">
+        <ul>
+            <li class="option skip" data-value="Skip">Skip</li>
+        </ul>
+    </div>`;
 
     let choice = '';
 
-    function clickedCandidate() {
-        if (msgId === 3) return;
+    function clickedChoice() {
+        if (msgId === 3 || msgId === 8) return;
+        if (msgId === 7) {
+            let questionOptionsDiv = document.querySelector(`.question_${msgId}_options`);
+            let skipBtn = questionOptionsDiv.querySelector('.skip');
+
+            skipBtn.addEventListener('click', () => {
+                console.log("the id", msgId);
+                let choice = skipBtn.getAttribute("data-value");
+                console.log(msgId);
+                insertChoiceMade(choice);
+                responses[msgId].push(choice);
+                console.log(responses);
+                questionOptionsDiv.style.display = 'none';
+                choice = '';
+                msgId++;
+                return;
+            });
+        }
         if (msgId === 2) {
             document.querySelector('#county-selected').addEventListener('change', (e) => {
                 let county = e.target.value;
                 let county_selected = county.charAt(0).toUpperCase() + county.slice(1).toLowerCase();
                 insertChoiceMade(county_selected);
                 responses[2].push(county_selected);
+                console.log(responses)
                 document.querySelector('.question_2_options').style.display = 'none';
                 sendAdSurveyResponse(msgId + 1, county_selected);
                 sendBannerEngagementEvent(`question_${msgId + 1}_option_${county}_selected`);
                 msgId++;
+                return;
             });
         }
-        if (msgId !== 2 || msgId !== 3 ) {
-            let questionOptions = document.querySelector(`.question_${msgId}_options`);
-            let options = questionOptions.querySelectorAll('.option');
+        if (msgId === 0 ||msgId === 1 ||msgId === 4 ||msgId === 5 ||msgId === 6) {
+            let questionOptionsDiv = document.querySelector(`.question_${msgId}_options`);
+            let options = questionOptionsDiv.querySelectorAll('.option');
 
             options.forEach((option, i) => {
                 option.addEventListener('click', () => {
                     choice = options[i].getAttribute("data-value");
                     let first_word = choice.split(" ")[0];
                     insertChoiceMade(choice);
-                    questionOptions.style.display = 'none';
+                    questionOptionsDiv.style.display = 'none';
+                    console.log(choice);
                     responses[msgId].push(choice);
+                    console.log(responses)
                     sendAdSurveyResponse(msgId + 1, choice);
                     sendBannerEngagementEvent(`question_${msgId + 1}_option_${first_word}_selected`);
                     choice = '';
                     msgId++;
+                    return;
                 });
             });
         }
@@ -292,7 +334,11 @@ $(document).ready(function () {
         {
             question: 'Do you support 1 man, 1 vote, 1 shilling policy?',
             options: questionSevenOptions
-        }
+        },
+        {
+            question: 'Enter your email below to receive your results, or press skip to finish survey.',
+            options: questionEightOptions
+        },
     ];
 
 
@@ -306,7 +352,7 @@ $(document).ready(function () {
 
         setTimeout(function () {
             $('.message.loading').remove();
-            if (i === 7) {
+            if (i === 8) {
                 $('<div class="message new"><figure class="avatar"><img src="images/chatbot-avatar.png" /></figure>' + 'Thank you for completing the survey.' + '</div>').appendTo($('.mCSB_container')).addClass('new');
                 updateScrollbar();
                 // document.querySelector('.message-box').style.display = 'none';
@@ -314,10 +360,11 @@ $(document).ready(function () {
                 return;
             } else {
                 $('<div class="message new"><figure class="avatar"><img src="images/chatbot-avatar.png" /></figure>' + Fake[i].question + '<br>' + Fake[i].options + '</div>').appendTo($('.mCSB_container')).addClass('new');
-                clickedCandidate();
+                clickedChoice();
+                updateScrollbar();
+                i++;
             }
-            updateScrollbar();
-            i++;
+
         }, 1000 + (Math.random() * 20) * 100);
     }
 
@@ -325,32 +372,32 @@ $(document).ready(function () {
 
 
     function sendAdSurveyResponse(question_number, response) {
-    //  console.log(unique_id);
+        //  console.log(unique_id);
 
-    let data = {
-        "banner_id": creative_id,
-        "banner_name": options.banner_name,
-        "impression_unique_id": unique_id,
-        ...question_options[question_number - 1],
-        response: [response]
-    };
+        let data = {
+            "banner_id": creative_id,
+            "banner_name": options.banner_name,
+            "impression_unique_id": unique_id,
+            ...question_options[question_number - 1],
+            response: [response]
+        };
 
-    //   console.log(data);
+        //   console.log(data);
 
-    (async () => {
-        const rawResponse = await fetch('https://dxp.mediapal.net/api/leadgen/adsurvey/create/1234567890', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-        //   const content = await rawResponse.json();
+        (async () => {
+            const rawResponse = await fetch('https://dxp.mediapal.net/api/leadgen/adsurvey/create/1234567890', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            //   const content = await rawResponse.json();
 
-        //   console.log(content);
-    })();
-}
+            //   console.log(content);
+        })();
+    }
 });
 
 
