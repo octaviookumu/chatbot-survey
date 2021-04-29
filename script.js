@@ -46,7 +46,7 @@ $(document).ready(function () {
             options: ["Yes", "No"]
         },
         {
-            question: "Enter email to receive your results.",
+            question: "Enter your email below to receive your results, or press skip to finish survey.",
             question_number: 8,
             options: ""
         }
