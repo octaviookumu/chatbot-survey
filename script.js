@@ -79,13 +79,11 @@ $(document).ready(function () {
             if (msgId === 3) {
                 $('<div class="message message-personal">' + text + '</div>').appendTo($('.mCSB_container')).addClass('new');
                 responses[msgId].push(text);
-                console.log(responses)
             }
             if (msgId === 7) {
                 document.querySelector(`.question_${msgId}_options`).style.display = 'none';
                 $('<div class="message message-personal">' + msg + '</div>').appendTo($('.mCSB_container')).addClass('new');
                 responses[msgId].push(msg);
-                console.log(responses)
             }
             sendAdSurveyResponse(msgId + 1, text);
             sendBannerEngagementEvent(`question_${msgId + 1}_input_entered`);
@@ -257,13 +255,12 @@ $(document).ready(function () {
             let skipBtn = questionOptionsDiv.querySelector('.skip');
 
             skipBtn.addEventListener('click', () => {
-                console.log("the id", msgId);
                 let choice = skipBtn.getAttribute("data-value");
-                console.log(msgId);
                 insertChoiceMade(choice);
                 responses[msgId].push(choice);
-                console.log(responses);
                 questionOptionsDiv.style.display = 'none';
+                sendAdSurveyResponse(msgId + 1, choice);
+                sendBannerEngagementEvent(`question_${msgId + 1}_option_${choice}_selected`);
                 choice = '';
                 msgId++;
                 return;
@@ -275,7 +272,6 @@ $(document).ready(function () {
                 let county_selected = county.charAt(0).toUpperCase() + county.slice(1).toLowerCase();
                 insertChoiceMade(county_selected);
                 responses[2].push(county_selected);
-                console.log(responses)
                 document.querySelector('.question_2_options').style.display = 'none';
                 sendAdSurveyResponse(msgId + 1, county_selected);
                 sendBannerEngagementEvent(`question_${msgId + 1}_option_${county}_selected`);
@@ -293,9 +289,7 @@ $(document).ready(function () {
                     let first_word = choice.split(" ")[0];
                     insertChoiceMade(choice);
                     questionOptionsDiv.style.display = 'none';
-                    console.log(choice);
                     responses[msgId].push(choice);
-                    console.log(responses)
                     sendAdSurveyResponse(msgId + 1, choice);
                     sendBannerEngagementEvent(`question_${msgId + 1}_option_${first_word}_selected`);
                     choice = '';
@@ -356,7 +350,7 @@ $(document).ready(function () {
                 $('<div class="message new"><figure class="avatar"><img src="images/chatbot-avatar.png" /></figure>' + 'Thank you for completing the survey.' + '</div>').appendTo($('.mCSB_container')).addClass('new');
                 updateScrollbar();
                 // document.querySelector('.message-box').style.display = 'none';
-                // console.log(responses)
+                console.log(responses)
                 return;
             } else {
                 $('<div class="message new"><figure class="avatar"><img src="images/chatbot-avatar.png" /></figure>' + Fake[i].question + '<br>' + Fake[i].options + '</div>').appendTo($('.mCSB_container')).addClass('new');
