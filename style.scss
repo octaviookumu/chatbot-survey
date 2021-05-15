@@ -45,8 +45,10 @@ Mixins
     overflow: hidden;
     margin: 0;
     padding: 0;
-    // width: 320px;
-    //   height: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // background: red;
   }
 
   .main{
@@ -58,6 +60,8 @@ Mixins
     border-radius: 20px;
       width: 320px;
       height: 480px;
+      border: 1px solid green;
+      margin-top: 100px;
   }
   
   .bg {
