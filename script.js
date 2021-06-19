@@ -26,7 +26,7 @@ $(document).ready(function () {
             options: "",
         },
         {
-            question: "Which candidate would you want to vie?",
+            question: "Which candidate would you want to vie? (Enter answer below)",
             question_number: 4,
             options: "",
         },
@@ -314,7 +314,7 @@ $(document).ready(function () {
             options: questionThreeOptions
         },
         {
-            question: 'Who would you like to see vying for the next Presidential Elections?',
+            question: 'Who would you like to see vying for the next Presidential Elections? (Enter answer below)',
             options: ''
         },
         {
